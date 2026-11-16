@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ecosistema de la Sabana - Presentación Interactiva y Simulador</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .glass-card { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06); }
+        @keyframes pulse-slow {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.01); }
+        }
+        .animate-pulse-slow { animation: pulse-slow 4s infinite ease-in-out; }
+        .tab-transition { transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+        canvas { display: block; width: 100%; height: 100%; }
+    </style>
+</head>
+<body class="bg-stone-100 text-slate-900 h-full flex flex-col selection:bg-amber-600 selection:text-white">
+
+    <!-- Modal de Mensaje Personalizado (Sin usar alert()) -->
+    <div id="custom-modal" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/70 backdrop-blur-sm hidden">
+        <div class="bg-white border border-slate-200 rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl transform transition-all">
+            <div class="flex items-center space-x-3 mb-4">
+                <div id="modal-icon" class="p-3 rounded-full bg-amber-100 text-amber-800 text-xl font-bold">🌿</div>
+                <h3 id="modal-title" class="text-xl font-bold text-slate-900">Información Ecológica</h3>
+            </div>
+            <p id="modal-message" class="text-slate-700 text-base leading-relaxed mb-6"></p>
+            <div class="flex justify-end">
+                <button onclick="closeModal()" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold rounded-xl shadow-md transition duration-200">Entendido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header / Barra de Navegación Interactiva por Módulos -->
+    <header class="bg-amber-950 text-white shadow-xl sticky top-0 z-40 border-b border-amber-800/40">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <span class="text-3xl">🦁</span>
+                <div>
+                    <h1 class="text-lg font-extrabold tracking-tight text-white">Ecosistema de la Sabana</h1>
+                    <p class="text-xs text-amber-200 font-medium">Estructura, Función, Termodinámica y Simulador Interactivo</p>
+                </div>
+            </div>
+            <nav class="flex flex-wrap gap-1.5 sm:gap-2 mt-2 sm:mt-0">
+                <button onclick="switchTab('estructuras')" id="btn-estructuras" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-600 text-white tab-transition shadow-sm">1. Estructura</button>
+                <button onclick="switchTab('nichos')" id="btn-nichos" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-900/80 hover:bg-amber-800 text-amber-100 tab-transition">2. Nicho y Tolerancia</button>
+                <button onclick="switchTab('relaciones')" id="btn-relaciones" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-900/80 hover:bg-amber-800 text-amber-100 tab-transition">3. Relaciones</button>
+                <button onclick="switchTab('energia')" id="btn-energia" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-900/80 hover:bg-amber-800 text-amber-100 tab-transition">4. Energía y Pirámides</button>
+                <button onclick="switchTab('ciclos')" id="btn-ciclos" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-900/80 hover:bg-amber-800 text-amber-100 tab-transition">5. Ciclos Biogeoquímicos</button>
+                <button onclick="switchTab('simulador')" id="btn-simulador" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white tab-transition shadow-md">⚡ 6. Simulador Vivo</button>
+                <button onclick="switchTab('sostenibilidad')" id="btn-sostenibilidad" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-900/80 hover:bg-amber-800 text-amber-100 tab-transition">7. Sostenibilidad</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Contenedor Principal de la Presentación -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 overflow-y-auto">
+
+        <!-- MÓDULO 1: ESTRUCTURA DEL ECOSISTEMA (BIÓTICOS Y ABIÓTICOS) -->
+        <section id="tab-estructuras" class="space-y-6">
+            <div class="bg-gradient-to-r from-amber-800 to-amber-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
+                <div class="absolute right-4 bottom-0 text-9xl opacity-10 select-none">🌍</div>
+                <span class="bg-amber-950/70 text-amber-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Unidad Funcional y Estructural</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold mt-3 mb-2">Estructura del Ecosistema de la Sabana</h2>
+                <p class="text-amber-50 max-w-3xl text-sm sm:text-base leading-relaxed font-normal">
+                    Un ecosistema es la unidad funcional y estructural de la biosfera (Miller, 2007). En la sabana africana, cada elemento biótico y abiótico influye recíprocamente, siendo indispensable para el mantenimiento de la vida y el equilibrio ecológico.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Factores Bióticos -->
+                <div class="glass-card rounded-2xl p-6 border-l-4 border-amber-600">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <span class="text-3xl">🌿</span>
+                        <h3 class="text-xl font-extrabold text-amber-950">Factores Bióticos</h3>
+                    </div>
+                    <p class="text-sm text-slate-700 font-medium mb-4">Organismos vivos clasificados según su nutrición (Autótrofos y Heterótrofos) — <em>Haz clic para ampliar</em>:</p>
+                    <ul class="space-y-3 text-sm">
+                        <li class="bg-amber-50 border border-amber-200/80 p-4 rounded-xl cursor-pointer hover:bg-amber-100 transition shadow-sm" onclick="showInfo('Productores (Autótrofos)', 'Plantas de acacia, hierbas altas (pasto elefante), arbustos y gramíneas. Fijan la energía solar mediante la fotosíntesis, fabricando materia orgánica compleja a partir de sustancias inorgánicas simples.')">
+                            <strong class="text-amber-900 block mb-1">1. Productores (Autótrofos):</strong>
+                            <span class="text-slate-800">Pastizales, acacias y arbustos espinosos. Constituyen la base energética de toda la cadena trófica.</span>
+                        </li>
+                        <li class="bg-amber-50 border border-amber-200/80 p-4 rounded-xl cursor-pointer hover:bg-amber-100 transition shadow-sm" onclick="showInfo('Consumidores (Heterótrofos)', 'Herbívoros (cebras, jirafas, elefantes, ñus), Carnívoros (leones, leopardos, guepardos), Omnívoros y Necrófagos/Carroñeros (buitres, hienas). Emplean y readaptan materiales complejos.')">
+                            <strong class="text-amber-900 block mb-1">2. Consumidores (Heterótrofos):</strong>
+                            <span class="text-slate-800">Primarios (Herbívoros como cebras y gacelas), Secundarios/Terciarios (Carnívoros como leones y hienas) y Carroñeros (buitres).</span>
+                        </li>
+                        <li class="bg-amber-50 border border-amber-200/80 p-4 rounded-xl cursor-pointer hover:bg-amber-100 transition shadow-sm" onclick="showInfo('Descomponedores', 'Hongos y bacterias del suelo. Utilizan los desechos, excrementos y cadáveres para obtener energía y reciclar nutrientes inorgánicos hacia el suelo.')">
+                            <strong class="text-amber-900 block mb-1">3. Descomponedores:</strong>
+                            <span class="text-slate-800">Hongos, termitas y bacterias del suelo que degradan la materia orgánica muerta cerrando el ciclo de la materia.</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Factores Abióticos -->
+                <div class="glass-card rounded-2xl p-6 border-l-4 border-sky-600">
+                    <div class="flex items-center space-x-3 mb-4">
+                        <span class="text-3xl">☀️</span>
+                        <h3 class="text-xl font-extrabold text-sky-950">Factores Abióticos</h3>
+                    </div>
+                    <p class="text-sm text-slate-700 font-medium mb-4">Elementos físicos y químicos inertes que condicionan la supervivencia en la sabana:</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                        <div class="bg-sky-50 border border-sky-200/80 p-3.5 rounded-xl font-semibold text-slate-800">🌡️ Clima estacional (época seca y húmeda)</div>
+                        <div class="bg-sky-50 border border-sky-200/80 p-3.5 rounded-xl font-semibold text-slate-800">💧 Precipitaciones y charcas estacionales</div>
+                        <div class="bg-sky-50 border border-sky-200/80 p-3.5 rounded-xl font-semibold text-slate-800">🏜️ Suelo (poroso, arcilloso o arenoso)</div>
+                        <div class="bg-sky-50 border border-sky-200/80 p-3.5 rounded-xl font-semibold text-slate-800">☀️ Luz solar intensa y alta radiación</div>
+                        <div class="bg-sky-50 border border-sky-200/80 p-3.5 rounded-xl font-semibold text-slate-800">🌱 Nutrientes minerales (Nitrógeno y Fósforo)</div>
+                        <div class="bg-sky-50 border border-sky-200/80 p-3.5 rounded-xl font-semibold text-slate-800">💨 Humedad relativa y presión atmosférica</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 2: NICHO, HÁBITAT Y LÍMITES DE TOLERANCIA -->
+        <section id="tab-nichos" class="space-y-6 hidden">
+            <div class="bg-gradient-to-r from-teal-800 to-emerald-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl">
+                <span class="bg-teal-950/70 text-teal-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Adaptación y Tolerancia</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold mt-3 mb-2">Hábitat, Nicho Ecológico y Leyes de Tolerancia</h2>
+                <p class="text-teal-50 max-w-3xl text-sm sm:text-base leading-relaxed">
+                    El <strong>hábitat</strong> es el lugar físico donde vive el organismo (las llanuras abiertas y abrevaderos de la sabana). El <strong>nicho ecológico</strong> es la "profesión" o papel funcional que desempeña cada especie, su banda de tolerancia y su rol en el flujo energético.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-card rounded-2xl p-6">
+                    <h3 class="font-extrabold text-lg mb-3 text-teal-950">📏 Ley de Tolerancia</h3>
+                    <p class="text-sm text-slate-700 leading-relaxed mb-4">
+                        La existencia, abundancia y distribución de una especie en la sabana están determinadas por factores físicos y químicos dentro de su banda óptima de tolerancia (mínimo, óptimo y máximo fisiológico).
+                    </p>
+                    <div class="bg-teal-50 border border-teal-200 p-3.5 rounded-xl text-xs sm:text-sm font-semibold text-teal-950">
+                        Ejemplo: El estrés por altas temperaturas y sequía extrema limita el metabolismo de los herbívoros si superan sus límites críticos.
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6">
+                    <h3 class="font-extrabold text-lg mb-3 text-teal-950">🐘 Especies Clave (Keystone)</h3>
+                    <p class="text-sm text-slate-700 leading-relaxed mb-4">
+                        Especies que influyen de manera desproporcionada y significativa sobre el resto de la cadena alimentaria y la arquitectura del paisaje.
+                    </p>
+                    <div class="bg-teal-50 border border-teal-200 p-3.5 rounded-xl text-xs sm:text-sm font-semibold text-teal-950">
+                        Ejemplo en la sabana: El <strong>Elefante africano</strong> derriba árboles y excava pozos de agua, permitiendo que otras especies sobrevivan.
+                    </div>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6">
+                    <h3 class="font-extrabold text-lg mb-3 text-teal-950">🧬 Especialistas vs Generalistas</h3>
+                    <p class="text-sm text-slate-700 leading-relaxed mb-4">
+                        • <strong>Especialistas:</strong> Rango estrecho de tolerancia ambiental y dieta estricta.<br>
+                        • <strong>Generalistas:</strong> Amplio rango de tolerancia (ej. hienas, babuinos, chacales).
+                    </p>
+                    <div class="bg-teal-50 border border-teal-200 p-3.5 rounded-xl text-xs sm:text-sm font-semibold text-teal-950">
+                        Las especies generalistas con mayor plasticidad ecológica sobreviven mejor a las sequías prolongadas.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 3: INTERACCIONES Y SIMBIOSIS -->
+        <section id="tab-relaciones" class="space-y-6 hidden">
+            <div class="bg-gradient-to-r from-indigo-800 to-purple-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl">
+                <span class="bg-indigo-950/70 text-indigo-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Dinámica de Poblaciones</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold mt-3 mb-2">Interacciones Interespecíficas y Simbiosis</h2>
+                <p class="text-indigo-50 max-w-3xl text-sm sm:text-base leading-relaxed">
+                    El funcionamiento de los ecosistemas depende crucialmente de cómo interactúan las especies entre sí (relaciones interespecíficas e intraespecíficas).
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="glass-card rounded-2xl p-6 border-t-4 border-emerald-600">
+                    <span class="text-3xl">🤝</span>
+                    <h4 class="font-extrabold text-lg mt-3 mb-2 text-emerald-900">Mutualismo (+ / +)</h4>
+                    <p class="text-sm text-slate-800 leading-relaxed">Ambas especies se benefician y mejoran su eficacia biológica. Ejemplo: El buey o la cebra con las garcillas bueyeras que comen sus parásitos, o las acacias con las hormigas protectoras.</p>
+                </div>
+                <div class="glass-card rounded-2xl p-6 border-t-4 border-red-600">
+                    <span class="text-3xl">🦁</span>
+                    <h4 class="font-extrabold text-lg mt-3 mb-2 text-red-900">Depredación (+ / -)</h4>
+                    <p class="text-sm text-slate-800 leading-relaxed">Un animal mata a otro de especie distinta para alimentarse. Ejemplo: El león cazando cebras o ñus; guepardos persiguiendo gacelas de Thomson.</p>
+                </div>
+                <div class="glass-card rounded-2xl p-6 border-t-4 border-amber-600">
+                    <span class="text-3xl">🦅</span>
+                    <h4 class="font-extrabold text-lg mt-3 mb-2 text-amber-900">Comensalismo (+ / 0)</h4>
+                    <p class="text-sm text-slate-800 leading-relaxed">Una especie se beneficia sin perjudicar ni beneficiar a la otra. Ejemplo: Aves que siguen a manadas de ungulados para capturar insectos espantados entre la hierba.</p>
+                </div>
+                <div class="glass-card rounded-2xl p-6 border-t-4 border-rose-600">
+                    <span class="text-3xl">🦠</span>
+                    <h4 class="font-extrabold text-lg mt-3 mb-2 text-rose-900">Parasitismo (+ / -)</h4>
+                    <p class="text-sm text-slate-800 leading-relaxed">El parásito vive dentro o fuera del huésped alimentándose de él y debilitándolo. Ejemplo: Garrapatas y moscas tsetsé en grandes mamíferos de la sabana.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 4: FLUJO DE ENERGÍA Y PIRÁMIDES ECOLÓGICAS -->
+        <section id="tab-energia" class="space-y-6 hidden">
+            <div class="bg-gradient-to-r from-amber-700 to-orange-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl">
+                <span class="bg-amber-950/70 text-amber-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Termodinámica y Tróficos</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold mt-3 mb-2">Flujo de Energía y Leyes Termodinámicas</h2>
+                <p class="text-amber-50 max-w-3xl text-sm sm:text-base leading-relaxed">
+                    Se rige por las leyes de la termodinámica: <strong>1ª Ley:</strong> La energía total es constante. <strong>2ª Ley:</strong> La energía utilizable disminuye constantemente (se disipa como calor en cada nivel trófico, cumpliendo la regla ecológica del 10%).
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Pirámide Trófica Interactiva -->
+                <div class="glass-card rounded-2xl p-6 md:col-span-2">
+                    <h3 class="font-extrabold text-lg mb-4 text-amber-950">🔺 Pirámide de Energía y Niveles Tróficos en la Sabana</h3>
+                    <div class="space-y-3">
+                        <div class="bg-rose-50 border border-rose-200 p-4 rounded-xl flex justify-between items-center">
+                            <div>
+                                <span class="text-xs font-extrabold text-rose-800 uppercase block">Consumidores Terciarios / Superdepredadores</span>
+                                <p class="text-sm font-bold text-slate-900">Leones, Leopardos, Hienas Alfa</p>
+                            </div>
+                            <span class="bg-rose-700 text-white text-xs px-3 py-1.5 rounded-full font-extrabold">2.5 kcal (10%)</span>
+                        </div>
+                        <div class="bg-amber-50 border border-amber-200 p-4 rounded-xl flex justify-between items-center">
+                            <div>
+                                <span class="text-xs font-extrabold text-amber-800 uppercase block">Consumidores Secundarios (Carnívoros)</span>
+                                <p class="text-sm font-bold text-slate-900">Chacales, Servales, Aves Rapaces</p>
+                            </div>
+                            <span class="bg-amber-700 text-white text-xs px-3 py-1.5 rounded-full font-extrabold">25 kcal (10%)</span>
+                        </div>
+                        <div class="bg-emerald-50 border border-emerald-200 p-4 rounded-xl flex justify-between items-center">
+                            <div>
+                                <span class="text-xs font-extrabold text-emerald-800 uppercase block">Consumidores Primarios (Herbívoros)</span>
+                                <p class="text-sm font-bold text-slate-900">Cebras, Ñus, Jirafas, Antílopes, Elefantes</p>
+                            </div>
+                            <span class="bg-emerald-700 text-white text-xs px-3 py-1.5 rounded-full font-extrabold">250 kcal (10%)</span>
+                        </div>
+                        <div class="bg-green-100 border border-green-300 p-4 rounded-xl flex justify-between items-center">
+                            <div>
+                                <span class="text-xs font-extrabold text-green-900 uppercase block">Productores (Autótrofos)</span>
+                                <p class="text-sm font-bold text-slate-900">Acacias, Pastizales y Gramíneas de la Sabana</p>
+                            </div>
+                            <span class="bg-green-800 text-white text-xs px-3 py-1.5 rounded-full font-extrabold">2,500 kcal (Solar)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tipos de Pirámides -->
+                <div class="glass-card rounded-2xl p-6 space-y-4">
+                    <h3 class="font-extrabold text-lg text-amber-950">📊 Tipos de Pirámides</h3>
+                    <div class="text-sm space-y-3 text-slate-800">
+                        <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl">
+                            <strong class="text-amber-950">1. Pirámide de Energía:</strong> Muestra la transferencia calórica decreciente (se disipa un 90% en forma de calor por nivel).
+                        </div>
+                        <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl">
+                            <strong class="text-amber-950">2. Pirámide de Biomasa:</strong> Representa el peso seco total de materia orgánica viva por unidad de área.
+                        </div>
+                        <div class="p-3.5 bg-amber-50 border border-amber-200 rounded-xl">
+                            <strong class="text-amber-950">3. Pirámide de Número:</strong> Conteo directo de individuos en cada eslabón trófico.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 5: CICLOS BIOGEOQUÍMICOS -->
+        <section id="tab-ciclos" class="space-y-6 hidden">
+            <div class="bg-gradient-to-r from-blue-800 to-indigo-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl">
+                <span class="bg-blue-950/70 text-blue-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Flujo de Materia</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold mt-3 mb-2">Ciclos Biogeoquímicos en la Sabana</h2>
+                <p class="text-blue-50 max-w-3xl text-sm sm:text-base leading-relaxed">
+                    A diferencia de la energía (que fluye en una sola dirección y se disipa), la materia se recicla constantemente entre el medio abiótico y los organismos vivos (ciclos gaseosos como Carbono y Nitrógeno, y sedimentarios como Fósforo).
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="glass-card rounded-2xl p-6 border-t-4 border-sky-600">
+                    <h3 class="font-extrabold text-lg mb-2 text-sky-950">💨 Ciclo del Carbono</h3>
+                    <p class="text-sm text-slate-800 leading-relaxed">
+                        El CO₂ atmosférico es absorbido por las acacias y pastos mediante fotosíntesis. Pasa a los herbívoros y carnívoros, y retorna a la atmósfera por la respiración y descomposición.
+                    </p>
+                </div>
+                <div class="glass-card rounded-2xl p-6 border-t-4 border-blue-600">
+                    <h3 class="font-extrabold text-lg mb-2 text-blue-950">🌧️ Ciclo del Agua</h3>
+                    <p class="text-sm text-slate-800 leading-relaxed">
+                        Vital en la sabana debido a la alternancia de estaciones secas y lluviosas. Incluye precipitación, infiltración, transpiración de los árboles y escorrentía hacia charcas estacionales.
+                    </p>
+                </div>
+                <div class="glass-card rounded-2xl p-6 border-t-4 border-indigo-600">
+                    <h3 class="font-extrabold text-lg mb-2 text-indigo-950">🌱 Ciclo del Nitrógeno</h3>
+                    <p class="text-sm text-slate-800 leading-relaxed">
+                        Fijación biológica por bacterias en el suelo y raíces (Rhizobium), nitrificación y asimilación en proteínas vegetales esenciales para la fauna de la sabana.
+                    </p>
+                </div>
+                <div class="glass-card rounded-2xl p-6 border-t-4 border-amber-600">
+                    <h3 class="font-extrabold text-lg mb-2 text-amber-950">🪨 Ciclo del Fósforo</h3>
+                    <p class="text-sm text-slate-800 leading-relaxed">
+                        Ciclo sedimentario lento. El ion fosfato en el suelo nutre los pastizales. Es un factor limitante clave para el desarrollo vegetal en suelos de sabana.
+                    </p>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 6: SIMULADOR INTERACTIVO EN VIVO Y PRONÓSTICOS -->
+        <section id="tab-simulador" class="space-y-6 hidden">
+            <div class="bg-gradient-to-r from-emerald-800 to-teal-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl">
+                <span class="bg-emerald-950/70 text-emerald-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Simulador Ecosistémico Interactivo</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold mt-3 mb-2">Simulador Vivo de la Sabana y Pronósticos 🦁🌿</h2>
+                <p class="text-emerald-50 max-w-3xl text-sm sm:text-base leading-relaxed">
+                    Observa en tiempo real cómo interactúan los factores abióticos y bióticos. Ajusta el clima, la población o desencadena eventos ambientales para comprobar la <strong>Ley de Tolerancia</strong>, el <strong>Factor Limitante</strong> y la <strong>Regla del 10%</strong>.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                <!-- Columna Izquierda: Controles y Eventos (4 cols) -->
+                <div class="glass-card rounded-2xl p-5 lg:col-span-4 space-y-5 flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                            <h3 class="font-extrabold text-base text-emerald-950">🎛️ Variables del Ecosistema</h3>
+                            <button onclick="resetSimulator()" class="text-xs font-bold px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg transition">Reiniciar</button>
+                        </div>
+
+                        <div class="space-y-3.5 text-sm">
+                            <div>
+                                <div class="flex justify-between font-bold text-slate-800 mb-1">
+                                    <span>💧 Lluvias / Precipitación:</span>
+                                    <span id="val-lluvia" class="text-blue-700">60%</span>
+                                </div>
+                                <input type="range" id="range-lluvia" min="5" max="100" value="60" class="w-full accent-blue-600 cursor-pointer" oninput="manualUpdate()">
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between font-bold text-slate-800 mb-1">
+                                    <span>🌱 Productores (Pastos/Acacias):</span>
+                                    <span id="val-productores" class="text-green-700">140</span>
+                                </div>
+                                <input type="range" id="range-productores" min="10" max="300" value="140" class="w-full accent-green-600 cursor-pointer" oninput="manualUpdate()">
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between font-bold text-slate-800 mb-1">
+                                    <span>🦓 Herbívoros (Cebras/Ñus):</span>
+                                    <span id="val-herbivoros" class="text-amber-700">55</span>
+                                </div>
+                                <input type="range" id="range-herbivoros" min="5" max="180" value="55" class="w-full accent-amber-600 cursor-pointer" oninput="manualUpdate()">
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between font-bold text-slate-800 mb-1">
+                                    <span>🦁 Depredadores (Leones):</span>
+                                    <span id="val-depredadores" class="text-rose-700">12</span>
+                                </div>
+                                <input type="range" id="range-depredadores" min="1" max="45" value="12" class="w-full accent-rose-600 cursor-pointer" oninput="manualUpdate()">
+                            </div>
+                        </div>
+
+                        <!-- Eventos Ecológicos Rápidos -->
+                        <div class="pt-2 border-t border-slate-200">
+                            <p class="text-xs font-extrabold uppercase text-slate-600 mb-2">⚡ Simular Perturbación Ambiental:</p>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="triggerEvent('sequia')" class="px-2.5 py-2 bg-amber-100 hover:bg-amber-200 text-amber-950 font-bold text-xs rounded-xl border border-amber-300 transition">☀️ Sequía Severa</button>
+                                <button onclick="triggerEvent('lluvias')" class="px-2.5 py-2 bg-blue-100 hover:bg-blue-200 text-blue-950 font-bold text-xs rounded-xl border border-blue-300 transition">🌧️ Temporada Lluviosa</button>
+                                <button onclick="triggerEvent('caza')" class="px-2.5 py-2 bg-rose-100 hover:bg-rose-200 text-rose-950 font-bold text-xs rounded-xl border border-rose-300 transition">⚠️ Caza de Leones</button>
+                                <button onclick="triggerEvent('incendio')" class="px-2.5 py-2 bg-orange-100 hover:bg-orange-200 text-orange-950 font-bold text-xs rounded-xl border border-orange-300 transition">🔥 Incendio de Pasto</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Controles de Tiempo de Simulación -->
+                    <div class="pt-3 border-t border-slate-200 flex gap-2">
+                        <button id="btn-play-pause" onclick="togglePlay()" class="flex-1 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl shadow-md transition">
+                            ⏸️ Pausar Tiempo
+                        </button>
+                        <button onclick="stepSimulationYear()" class="flex-1 py-2.5 bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs rounded-xl shadow-md transition">
+                            ⏭️ +1 Año Ecológico
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Columna Derecha: Escenario Vivo + Gráfica Histórica + Pronóstico (8 cols) -->
+                <div class="lg:col-span-8 flex flex-col gap-5">
+                    <!-- Canvas del Ecosistema Animado -->
+                    <div class="glass-card rounded-2xl overflow-hidden relative border-2 border-slate-300 shadow-lg" style="height: 290px;">
+                        <canvas id="savanna-canvas"></canvas>
+                        <!-- HUD Flotante sobre el Canvas -->
+                        <div class="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-3.5 py-1.5 rounded-xl border border-slate-200 shadow-sm flex items-center gap-3 text-xs font-extrabold text-slate-900">
+                            <span>📅 Año: <span id="hud-year" class="text-emerald-700">1</span></span>
+                            <span>|</span>
+                            <span id="hud-weather">🌤️ Estación Templada</span>
+                        </div>
+                        <div id="badge-estado" class="absolute top-3 right-3 px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-100 text-emerald-950 border border-emerald-300 shadow-sm">
+                            ✅ Equilibrio Estable
+                        </div>
+                    </div>
+
+                    <!-- Gráfica de Tendencia Poblacional + Diagnóstico Predictivo -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="glass-card rounded-2xl p-4 flex flex-col justify-between">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="text-xs font-extrabold uppercase text-slate-700">📈 Dinámica Trófica (Tendencia)</h4>
+                                <div class="flex gap-2 text-[11px] font-bold">
+                                    <span class="text-green-700">● Plantas</span>
+                                    <span class="text-amber-700">● Herbívoros</span>
+                                    <span class="text-rose-700">● Leones</span>
+                                </div>
+                            </div>
+                            <div class="w-full h-32 bg-slate-50 rounded-xl border border-slate-200 overflow-hidden">
+                                <canvas id="chart-canvas"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="glass-card rounded-2xl p-5 flex flex-col justify-center bg-white border-l-4 border-emerald-600">
+                            <h4 class="text-xs font-extrabold uppercase text-emerald-800 mb-1.5">🔬 Pronóstico Científico en Tiempo Real</h4>
+                            <p id="sim-diagnostic" class="text-sm text-slate-800 font-medium leading-relaxed">
+                                El ecosistema mantiene un flujo energético óptimo. La biomasa vegetal sostiene a los herbívoros y la depredación regula la población evitando el sobrepastoreo.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MÓDULO 7: SOSTENIBILIDAD Y SERVICIOS ECOSISTÉMICOS -->
+        <section id="tab-sostenibilidad" class="space-y-6 hidden">
+            <div class="bg-gradient-to-r from-amber-900 to-yellow-900 rounded-3xl p-6 sm:p-8 text-white shadow-xl">
+                <span class="bg-amber-950/70 text-amber-200 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Conservación y Futuro</span>
+                <h2 class="text-2xl sm:text-3xl font-extrabold mt-3 mb-2">Principios de Sostenibilidad y Servicios Ecosistémicos</h2>
+                <p class="text-amber-50 max-w-3xl text-sm sm:text-base leading-relaxed">
+                    Para asegurar la persistencia de la sabana, se aplican los 4 principios de sostenibilidad y se valoran los servicios fundamentales que provee a la biosfera.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-card rounded-2xl p-6">
+                    <h3 class="font-extrabold text-lg mb-4 text-amber-950">♻️ Los 4 Principios de Sostenibilidad</h3>
+                    <ul class="space-y-3 text-sm text-slate-800">
+                        <li class="bg-amber-50 border border-amber-200 p-3.5 rounded-xl"><strong class="text-amber-950">1. Reciclaje:</strong> Los ecosistemas reciclan todos los elementos liberándose de desechos y reponiendo nutrientes al suelo.</li>
+                        <li class="bg-amber-50 border border-amber-200 p-3.5 rounded-xl"><strong class="text-amber-950">2. Energía Solar:</strong> Aprovechamiento continuo de la luz solar como fuente primaria de energía limpia.</li>
+                        <li class="bg-amber-50 border border-amber-200 p-3.5 rounded-xl"><strong class="text-amber-950">3. Control Poblacional:</strong> El tamaño de las poblaciones debe autorregularse para evitar el sobrepastoreo excesivo.</li>
+                        <li class="bg-amber-50 border border-amber-200 p-3.5 rounded-xl"><strong class="text-amber-950">4. Biodiversidad:</strong> Conservación estricta de la diversidad genética y de especies para garantizar resiliencia.</li>
+                    </ul>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6">
+                    <h3 class="font-extrabold text-lg mb-4 text-amber-950">🌍 Servicios Ecosistémicos de la Sabana</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 text-sm text-slate-800">
+                        <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl"><strong class="text-amber-950 block mb-1">Aprovisionamiento:</strong> Alimentos, agua dulce, fibras vegetales y madera.</div>
+                        <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl"><strong class="text-amber-950 block mb-1">Regulación:</strong> Regulación del clima local, purificación del agua y control de erosión.</div>
+                        <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl"><strong class="text-amber-950 block mb-1">Soporte:</strong> Ciclo de nutrientes biogeoquímicos y formación de suelo fértil.</div>
+                        <div class="p-4 bg-amber-50 border border-amber-200 rounded-xl"><strong class="text-amber-950 block mb-1">Culturales:</strong> Valor estético, educacional, científico y ecoturismo sostenible.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-amber-950 text-amber-100 text-center py-4 text-xs mt-8 border-t border-amber-900 font-medium">
+        <p>Presentación Interactiva del Ecosistema de la Sabana — Basado en Principios Ecológicos, Termodinámica y Ecosistemas (INTEC).</p>
+    </footer>
+
+    <!-- Script de Interactividad y Simulador Visual Animado -->
+    <script>
+        // Navegación de Pestañas
+        function switchTab(tabId) {
+            const tabs = ['estructuras', 'nichos', 'relaciones', 'energia', 'ciclos', 'simulador', 'sostenibilidad'];
+            tabs.forEach(t => {
+                const el = document.getElementById('tab-' + t);
+                const btn = document.getElementById('btn-' + t);
+                if (t === tabId) {
+                    el.classList.remove('hidden');
+                    btn.className = "px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-600 text-white tab-transition shadow-sm";
+                    if (t === 'simulador') {
+                        btn.className = "px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-600 text-white tab-transition shadow-md";
+                        resizeCanvases();
+                    }
+                } else {
+                    el.classList.add('hidden');
+                    if (t === 'simulador') {
+                        btn.className = "px-3 py-1.5 text-xs font-bold rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white tab-transition shadow-md";
+                    } else {
+                        btn.className = "px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-900/80 hover:bg-amber-800 text-amber-100 tab-transition";
+                    }
+                }
+            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Sistema de Modal personalizado (Sin usar alert())
+        function showInfo(title, message) {
+            document.getElementById('modal-title').innerText = title;
+            document.getElementById('modal-message').innerText = message;
+            document.getElementById('custom-modal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('custom-modal').classList.add('hidden');
+        }
+
+        // ==========================================
+        // MOTOR DEL SIMULADOR ECOLÓGICO EN TIEMPO REAL
+        // ==========================================
+        let simState = {
+            year: 1,
+            lluvia: 60,
+            productores: 140,
+            herbivoros: 55,
+            depredadores: 12,
+            isPlaying: true,
+            history: [
+                { p: 140, h: 55, d: 12 }
+            ]
+        };
+
+        let entities = [];
+        let raindrops = [];
+        let lastStepTime = 0;
+
+        const savannaCanvas = document.getElementById('savanna-canvas');
+        const sCtx = savannaCanvas.getContext('2d');
+        const chartCanvas = document.getElementById('chart-canvas');
+        const cCtx = chartCanvas.getContext('2d');
+
+        function resizeCanvases() {
+            if (!savannaCanvas || !chartCanvas) return;
+            const sRect = savannaCanvas.parentElement.getBoundingClientRect();
+            if (sRect.width > 0) {
+                savannaCanvas.width = sRect.width;
+                savannaCanvas.height = sRect.height;
+            }
+            const cRect = chartCanvas.parentElement.getBoundingClientRect();
+            if (cRect.width > 0) {
+                chartCanvas.width = cRect.width;
+                chartCanvas.height = cRect.height;
+            }
+            syncEntities();
+            drawChart();
+        }
+
+        window.addEventListener('resize', resizeCanvases);
+
+        // Sincronizar entidades visuales en el lienzo según población
+        function syncEntities() {
+            const w = savannaCanvas.width || 600;
+            const h = savannaCanvas.height || 290;
+            const groundY = h * 0.62;
+
+            const targetTrees = Math.max(2, Math.min(18, Math.round(simState.productores / 15)));
+            const targetHerbs = Math.max(1, Math.min(22, Math.round(simState.herbivoros / 7)));
+            const targetPreds = Math.max(0, Math.min(10, Math.round(simState.depredadores / 3)));
+
+            const countType = (type) => entities.filter(e => e.type === type).length;
+
+            // Ajustar árboles/arbustos
+            while (countType('tree') < targetTrees) {
+                entities.push({
+                    type: 'tree',
+                    x: 30 + Math.random() * (w - 60),
+                    y: groundY + Math.random() * (h - groundY - 25),
+                    size: 22 + Math.random() * 12
+                });
+            }
+            while (countType('tree') > targetTrees) {
+                const idx = entities.findIndex(e => e.type === 'tree');
+                if (idx !== -1) entities.splice(idx, 1);
+            }
+
+            // Ajustar herbívoros (cebras / jirafas)
+            while (countType('herb') < targetHerbs) {
+                entities.push({
+                    type: 'herb',
+                    emoji: Math.random() > 0.35 ? '🦓' : '🦒',
+                    x: 20 + Math.random() * (w - 40),
+                    y: groundY + 10 + Math.random() * (h - groundY - 30),
+                    vx: (Math.random() - 0.5) * 1.1,
+                    vy: (Math.random() - 0.5) * 0.4
+                });
+            }
+            while (countType('herb') > targetHerbs) {
+                const idx = entities.findIndex(e => e.type === 'herb');
+                if (idx !== -1) entities.splice(idx, 1);
+            }
+
+            // Ajustar depredadores (leones)
+            while (countType('pred') < targetPreds) {
+                entities.push({
+                    type: 'pred',
+                    emoji: '🦁',
+                    x: 20 + Math.random() * (w - 40),
+                    y: groundY + 10 + Math.random() * (h - groundY - 30),
+                    vx: (Math.random() - 0.5) * 1.5,
+                    vy: (Math.random() - 0.5) * 0.6
+                });
+            }
+            while (countType('pred') > targetPreds) {
+                const idx = entities.findIndex(e => e.type === 'pred');
+                if (idx !== -1) entities.splice(idx, 1);
+            }
+        }
+
+        function manualUpdate() {
+            simState.lluvia = parseInt(document.getElementById('range-lluvia').value);
+            simState.productores = parseInt(document.getElementById('range-productores').value);
+            simState.herbivoros = parseInt(document.getElementById('range-herbivoros').value);
+            simState.depredadores = parseInt(document.getElementById('range-depredadores').value);
+            updateUI();
+            syncEntities();
+        }
+
+        function triggerEvent(eventType) {
+            if (eventType === 'sequia') {
+                simState.lluvia = 12;
+                simState.productores = Math.max(25, Math.round(simState.productores * 0.55));
+            } else if (eventType === 'lluvias') {
+                simState.lluvia = 92;
+                simState.productores = Math.min(280, Math.round(simState.productores * 1.45));
+            } else if (eventType === 'caza') {
+                simState.depredadores = 2;
+            } else if (eventType === 'incendio') {
+                simState.productores = 30;
+                simState.herbivoros = Math.max(15, Math.round(simState.herbivoros * 0.7));
+            }
+            syncSliders();
+            updateUI();
+            syncEntities();
+        }
+
+        function syncSliders() {
+            document.getElementById('range-lluvia').value = simState.lluvia;
+            document.getElementById('range-productores').value = simState.productores;
+            document.getElementById('range-herbivoros').value = simState.herbivoros;
+            document.getElementById('range-depredadores').value = simState.depredadores;
+        }
+
+        function stepSimulationYear() {
+            simState.year++;
+            // Modelo ecológico Lotka-Volterra adaptado con factor limitante hídrico
+            const rainFactor = simState.lluvia / 55;
+            const prodGrowth = (simState.productores * 0.28 * rainFactor) - (simState.herbivoros * 0.48);
+            const newProd = Math.round(Math.max(15, Math.min(300, simState.productores + prodGrowth)));
+
+            const foodRatio = newProd / Math.max(20, simState.herbivoros * 1.6);
+            const herbGrowth = (simState.herbivoros * 0.22 * Math.min(1.8, foodRatio)) - (simState.depredadores * 0.85) - (foodRatio < 0.6 ? 12 : 0);
+            const newHerb = Math.round(Math.max(6, Math.min(180, simState.herbivoros + herbGrowth)));
+
+            const preyRatio = newHerb / Math.max(4, simState.depredadores * 3.5);
+            const depGrowth = (simState.depredadores * 0.18 * Math.min(1.6, preyRatio)) - (preyRatio < 0.7 ? 3 : 1);
+            const newDep = Math.round(Math.max(1, Math.min(45, simState.depredadores + depGrowth)));
+
+            simState.productores = newProd;
+            simState.herbivoros = newHerb;
+            simState.depredadores = newDep;
+
+            simState.history.push({ p: newProd, h: newHerb, d: newDep });
+            if (simState.history.length > 25) simState.history.shift();
+
+            syncSliders();
+            updateUI();
+            syncEntities();
+            drawChart();
+        }
+
+        function updateUI() {
+            document.getElementById('val-lluvia').innerText = simState.lluvia + '%';
+            document.getElementById('val-productores').innerText = simState.productores;
+            document.getElementById('val-herbivoros').innerText = simState.herbivoros;
+            document.getElementById('val-depredadores').innerText = simState.depredadores;
+            document.getElementById('hud-year').innerText = simState.year;
+
+            const weatherHud = document.getElementById('hud-weather');
+            if (simState.lluvia < 25) weatherHud.innerText = '☀️ Sequía Árida';
+            else if (simState.lluvia > 75) weatherHud.innerText = '🌧️ Estación Lluviosa';
+            else weatherHud.innerText = '🌤️ Clima Templado';
+
+            const badge = document.getElementById('badge-estado');
+            const diag = document.getElementById('sim-diagnostic');
+
+            if (simState.lluvia < 25) {
+                badge.className = "absolute top-3 right-3 px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-amber-100 text-amber-950 border border-amber-400 shadow-sm";
+                badge.innerText = "⚠️ Factor Limitante: Agua";
+                diag.innerText = "PRONÓSTICO CRÍTICO: La precipitación cayó debajo de la banda óptima de tolerancia. La escasez de agua frena la fotosíntesis, reduciendo los pastos y amenazando a los herbívoros por inanición.";
+            } else if (simState.herbivoros > simState.productores * 1.1) {
+                badge.className = "absolute top-3 right-3 px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-orange-100 text-orange-950 border border-orange-400 shadow-sm";
+                badge.innerText = "⚠️ Sobrepastoreo Severo";
+                diag.innerText = "PRONÓSTICO DE DESEQUILIBRIO: Los herbívoros exceden la capacidad de carga vegetal (violando el 3er principio de sostenibilidad). Sin suficientes depredadores que regulen la manada, la sabana se desertificará.";
+            } else if (simState.depredadores > simState.herbivoros * 0.45) {
+                badge.className = "absolute top-3 right-3 px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-rose-100 text-rose-950 border border-rose-400 shadow-sm";
+                badge.innerText = "⚠️ Exceso de Depredadores";
+                diag.innerText = "PRONÓSTICO TRÓFICO: Por la 2ª Ley de la Termodinámica (regla del 10%), la base de herbívoros no produce suficiente energía calórica para sostener tantos leones; los depredadores disminuirán pronto.";
+            } else {
+                badge.className = "absolute top-3 right-3 px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-100 text-emerald-950 border border-emerald-400 shadow-sm";
+                badge.innerText = "✅ Equilibrio Sostenible";
+                diag.innerText = "PRONÓSTICO FAVORABLE: El flujo de energía, el ciclo hidrológico y las interacciones depredador-presa operan dentro de los límites de tolerancia. La biodiversidad de la sabana prospera.";
+            }
+        }
+
+        function togglePlay() {
+            simState.isPlaying = !simState.isPlaying;
+            const btn = document.getElementById('btn-play-pause');
+            btn.innerText = simState.isPlaying ? '⏸️ Pausar Tiempo' : '▶️ Reanudar Tiempo';
+        }
+
+        function resetSimulator() {
+            simState = {
+                year: 1,
+                lluvia: 60,
+                productores: 140,
+                herbivoros: 55,
+                depredadores: 12,
+                isPlaying: true,
+                history: [{ p: 140, h: 55, d: 12 }]
+            };
+            document.getElementById('btn-play-pause').innerText = '⏸️ Pausar Tiempo';
+            syncSliders();
+            updateUI();
+            syncEntities();
+            drawChart();
+        }
+
+        // Dibujar gráfico de líneas de tendencia poblacional
+        function drawChart() {
+            const w = chartCanvas.width;
+            const h = chartCanvas.height;
+            if (!w || !h) return;
+            cCtx.clearRect(0, 0, w, h);
+
+            // Líneas guía horizontales
+            cCtx.strokeStyle = '#e2e8f0';
+            cCtx.lineWidth = 1;
+            for (let i = 1; i <= 3; i++) {
+                const y = (h / 4) * i;
+                cCtx.beginPath();
+                cCtx.moveTo(0, y);
+                cCtx.lineTo(w, y);
+                cCtx.stroke();
+            }
+
+            if (simState.history.length < 2) return;
+
+            const drawLine = (key, maxVal, color) => {
+                cCtx.strokeStyle = color;
+                cCtx.lineWidth = 2.5;
+                cCtx.beginPath();
+                simState.history.forEach((pt, idx) => {
+                    const x = (idx / (simState.history.length - 1)) * (w - 16) + 8;
+                    const y = h - ((pt[key] / maxVal) * (h - 16)) - 8;
+                    if (idx === 0) cCtx.moveTo(x, y);
+                    else cCtx.lineTo(x, y);
+                });
+                cCtx.stroke();
+            };
+
+            drawLine('p', 300, '#15803d'); // Productores (Verde)
+            drawLine('h', 180, '#b45309'); // Herbívoros (Ámbar)
+            drawLine('d', 45, '#be123c');  // Depredadores (Rojo)
+        }
+
+        // Bucle principal de animación del ecosistema de la sabana
+        function animateSavanna(timestamp) {
+            const w = savannaCanvas.width;
+            const h = savannaCanvas.height;
+
+            if (w > 0 && h > 0) {
+                const groundY = h * 0.60;
+
+                // 1. Cielo dinámico según clima
+                const skyGrad = sCtx.createLinearGradient(0, 0, 0, groundY);
+                if (simState.lluvia > 75) {
+                    skyGrad.addColorStop(0, '#475569');
+                    skyGrad.addColorStop(1, '#94a3b8');
+                } else if (simState.lluvia < 25) {
+                    skyGrad.addColorStop(0, '#ea580c');
+                    skyGrad.addColorStop(1, '#fde047');
+                } else {
+                    skyGrad.addColorStop(0, '#0284c7');
+                    skyGrad.addColorStop(1, '#bae6fd');
+                }
+                sCtx.fillStyle = skyGrad;
+                sCtx.fillRect(0, 0, w, groundY);
+
+                // Sol
+                if (simState.lluvia <= 75) {
+                    sCtx.fillStyle = simState.lluvia < 25 ? '#fef08a' : '#fde047';
+                    sCtx.beginPath();
+                    sCtx.arc(w - 70, 50, simState.lluvia < 25 ? 28 : 22, 0, Math.PI * 2);
+                    sCtx.fill();
+                }
+
+                // 2. Suelo de la sabana (cambia de verde exuberante a tierra seca)
+                const groundGrad = sCtx.createLinearGradient(0, groundY, 0, h);
+                if (simState.lluvia < 25 || simState.productores < 45) {
+                    groundGrad.addColorStop(0, '#d97706');
+                    groundGrad.addColorStop(1, '#92400e');
+                } else if (simState.lluvia > 70) {
+                    groundGrad.addColorStop(0, '#65a30d');
+                    groundGrad.addColorStop(1, '#3f6212');
+                } else {
+                    groundGrad.addColorStop(0, '#eab308');
+                    groundGrad.addColorStop(1, '#854d0e');
+                }
+                sCtx.fillStyle = groundGrad;
+                sCtx.fillRect(0, groundY, w, h - groundY);
+
+                // 3. Charca / Abrevadero (su tamaño depende de la lluvia)
+                const pondRadiusX = Math.max(12, (simState.lluvia / 100) * 65);
+                const pondRadiusY = Math.max(5, (simState.lluvia / 100) * 20);
+                sCtx.fillStyle = simState.lluvia < 20 ? '#a16207' : '#0ea5e9';
+                sCtx.beginPath();
+                sCtx.ellipse(w * 0.5, groundY + (h - groundY) * 0.55, pondRadiusX, pondRadiusY, 0, 0, Math.PI * 2);
+                sCtx.fill();
+
+                // 4. Ordenar y dibujar entidades (árboles, herbívoros, depredadores)
+                entities.sort((a, b) => a.y - b.y);
+                sCtx.textAlign = 'center';
+                sCtx.textBaseline = 'bottom';
+
+                entities.forEach(ent => {
+                    if (ent.type === 'tree') {
+                        // Dibujar Acacia estilizada
+                        sCtx.fillStyle = '#78350f';
+                        sCtx.fillRect(ent.x - 2, ent.y - ent.size * 0.6, 4, ent.size * 0.6);
+                        sCtx.fillStyle = simState.lluvia < 25 ? '#a16207' : '#15803d';
+                        sCtx.beginPath();
+                        sCtx.ellipse(ent.x, ent.y - ent.size * 0.65, ent.size * 0.75, ent.size * 0.28, 0, 0, Math.PI * 2);
+                        sCtx.fill();
+                    } else {
+                        // Mover fauna si está activo
+                        if (simState.isPlaying) {
+                            ent.x += ent.vx;
+                            ent.y += ent.vy;
+                            if (ent.x < 20 || ent.x > w - 20) ent.vx *= -1;
+                            if (ent.y < groundY + 8 || ent.y > h - 10) ent.vy *= -1;
+                        }
+                        sCtx.font = ent.type === 'pred' ? '24px sans-serif' : '22px sans-serif';
+                        sCtx.fillText(ent.emoji, ent.x, ent.y);
+                    }
+                });
+
+                // 5. Efecto de lluvia si precipitación > 70%
+                if (simState.lluvia > 70) {
+                    sCtx.strokeStyle = 'rgba(224, 242, 254, 0.75)';
+                    sCtx.lineWidth = 1.5;
+                    for (let i = 0; i < 35; i++) {
+                        const rx = (Math.random() * w);
+                        const ry = (Math.random() * h);
+                        sCtx.beginPath();
+                        sCtx.moveTo(rx, ry);
+                        sCtx.lineTo(rx - 3, ry + 12);
+                        sCtx.stroke();
+                    }
+                }
+
+                // Avance automático cada 3.2 segundos si está en reproducción
+                if (simState.isPlaying && timestamp - lastStepTime > 3200) {
+                    lastStepTime = timestamp;
+                    stepSimulationYear();
+                }
+            }
+
+            requestAnimationFrame(animateSavanna);
+        }
+
+        window.onload = function () {
+            resizeCanvases();
+            updateUI();
+            requestAnimationFrame(animateSavanna);
+        };
+    </script>
+</body>
+</html>
